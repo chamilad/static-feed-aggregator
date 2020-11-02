@@ -4,10 +4,8 @@ aggregator:
                         - name: "feeding the monkey"
                           url: "https://monkeyseemonkeykill.wordpress.com/"
                           feed: "https://monkeyseemonkeykill.wordpress.com/feed"
-                          lastRead: null
 
                         - name: "tech something"
                           url: "http://feeds.twit.tv/twit.xml"
                           feed: "http://feeds.twit.tv/twit.xml"
-                          lastRead: null
 

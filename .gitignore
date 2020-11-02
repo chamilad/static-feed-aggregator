@@ -19,4 +19,5 @@
 
 # bin files
 collector/collector
-
+aggr.db
+build/
