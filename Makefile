@@ -1,6 +1,6 @@
 # Makefile
-BINARY="renderer"
-IMG="renderer"
+BINARY="feedr"
+IMG="feedr"
 TARGET="build"
 VERSION="v0.0.1-latest"
 

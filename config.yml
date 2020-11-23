@@ -1,7 +1,4 @@
 aggregator:
-  renderer: 
-    latest_days: 30
-
   collector:
     feeds:
     - title: feeding the monkey
@@ -11,12 +8,12 @@ aggregator:
     - title: tech something
       url: http://feeds.twit.tv/twit.xml
       feed: http://feeds.twit.tv/twit.xml
-      last_read: 1604855629
+      last_read: 1605461958
     - title: NOA Alerts
       url: https://alerts.weather.gov/cap/al.php?x=0
       feed: https://alerts.weather.gov/cap/al.php?x=0
-      last_read: 1605332161
+      last_read: 1606098661
     - title: NASA RSS
       url: https://www.nasa.gov/content/nasa-rss-feeds
       feed: https://www.nasa.gov/rss/dyn/breaking_news.rss
-      last_read: 1605313320
+      last_read: 1605981300

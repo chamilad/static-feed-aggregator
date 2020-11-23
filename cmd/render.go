@@ -1,15 +1,24 @@
-package main
+package cmd
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
+)
+
+var (
+	renderCmd = &cobra.Command{
+		Use:   "render",
+		Short: "renders the output",
+		Long:  "",
+		Run:   Render,
+	}
 )
 
 type Post struct {
@@ -22,13 +31,13 @@ type Posts struct {
 	Posts []*Post `yaml:"posts"`
 }
 
-func main() {
-	c := flag.String("c", "config.yml", "configuration file")
-	d := flag.String("d", "aggr.db", "items database")
-	flag.Parse()
+func init() {
+	rootCmd.AddCommand(renderCmd)
+}
 
+func Render(cmd *cobra.Command, a []string) {
 	fmt.Fprintf(os.Stderr, "starting feed renderer...\n")
-	db, err := sql.Open("sqlite3", *d)
+	db, err := sql.Open("sqlite3", d)
 	if err != nil {
 		log.Fatalf("error while opening database: %s\n", err)
 	}

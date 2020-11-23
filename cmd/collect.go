@@ -1,32 +1,39 @@
-package main
+package cmd
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/chamilad/sinhala-blog-aggregator/common"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mmcdole/gofeed"
+	"github.com/spf13/cobra"
 )
 
-// todo:
-//  redo the package structure build a single binary with different profiles
-//  each profile is implemented in different packages
-//
-func main() {
-	c := flag.String("c", "config.yml", "configuration file")
-	d := flag.String("d", "aggr.db", "items database")
-	flag.Parse()
+var (
+	collectCmd = &cobra.Command{
+		Use:   "collect",
+		Short: "collect the newest items from the feeds",
+		Long:  "",
+		Run:   Collect,
+	}
+)
 
+func init() {
+	rootCmd.AddCommand(collectCmd)
+}
+
+func Collect(cmd *cobra.Command, a []string) {
 	fmt.Fprintf(os.Stderr, "starting feed collector...\n")
 
+	// todo: add an init command later
 	// init db
 	now := time.Now()
-	db, err := sql.Open("sqlite3", *d)
+	db, err := sql.Open("sqlite3", d)
 	if err != nil {
 		log.Fatalf("error while opening database: %s\n", err)
 	}
@@ -46,7 +53,7 @@ func main() {
 		log.Fatalf("error while executing create table: %s\n", err)
 	}
 
-	conf, err := common.LoadConfig(*c)
+	conf, err := common.LoadConfig(c)
 	if err != nil {
 		log.Fatalf("error while loading configuration file: %s", err)
 	}
@@ -107,7 +114,7 @@ func main() {
 		}
 	}
 
-	err = common.UpdateConfig(conf, *c)
+	err = common.UpdateConfig(conf, c)
 	if err != nil {
 		log.Fatalf("error while writing configuration file: %s", err)
 	}
