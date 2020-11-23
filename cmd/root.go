@@ -32,5 +32,5 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&c, "config", "c", "", "configuration yaml file")
 	rootCmd.PersistentFlags().StringVarP(&d, "database", "d", "", "database file")
 	rootCmd.MarkPersistentFlagRequired("config")
-	rootCmd.MarkPersistentFlagRequired("database")
+	//rootCmd.MarkPersistentFlagRequired("database")
 }

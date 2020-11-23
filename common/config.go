@@ -16,6 +16,15 @@ type Config struct {
 				LastRead int32  `yaml:"last_read"`
 			} `yaml:"feeds"`
 		} `yaml:"collector"`
+		Renderer struct {
+			Collection struct {
+				Days int `yaml:"days"`
+			} `yaml:"collection"`
+			Site struct {
+				Location string `yaml:"location"`
+				FileName string `yaml:"file_name"`
+			} `yaml:"site"`
+		} `yaml:"renderer"`
 	} `yaml:"aggregator"`
 }
 

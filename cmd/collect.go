@@ -33,7 +33,7 @@ func Collect(cmd *cobra.Command, a []string) {
 	// todo: add an init command later
 	// init db
 	now := time.Now()
-	db, err := sql.Open("sqlite3", d)
+	db, err := common.OpenDb(d)
 	if err != nil {
 		log.Fatalf("error while opening database: %s\n", err)
 	}

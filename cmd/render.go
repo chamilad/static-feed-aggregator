@@ -1,12 +1,14 @@
 package cmd
 
 import (
-	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"time"
 
+	"github.com/chamilad/sinhala-blog-aggregator/common"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -27,6 +29,7 @@ type Post struct {
 	Published string `yaml:"published"`
 	Fragment  string `yaml:"frag"`
 }
+
 type Posts struct {
 	Posts []*Post `yaml:"posts"`
 }
@@ -37,16 +40,21 @@ func init() {
 
 func Render(cmd *cobra.Command, a []string) {
 	fmt.Fprintf(os.Stderr, "starting feed renderer...\n")
-	db, err := sql.Open("sqlite3", d)
+	db, err := common.OpenDb(d)
 	if err != nil {
 		log.Fatalf("error while opening database: %s\n", err)
 	}
 
 	defer db.Close()
 
+	conf, err := common.LoadConfig(c)
+	if err != nil {
+		log.Fatalf("error while loading configuration: %s", err)
+	}
+
 	now := time.Now()
 	itemsTable := fmt.Sprintf("items_%s", now.Format("200601"))
-	timeConstraint := now.Unix() - (60 * 60 * 24 * 10) // 10 days before today
+	timeConstraint := now.Unix() - (60 * 60 * 24 * int64(conf.Aggr.Renderer.Collection.Days)) // x days before today
 
 	// SELECT * FROM {itemsTable} WHERE timestamp >= {today-10d.12AM} ORDER BY timestamp DSC
 	posts, err := db.Query(fmt.Sprintf("SELECT id, timestamp, title, body, url FROM %s WHERE timestamp >= %d ORDER BY timestamp DESC", itemsTable, timeConstraint))
@@ -101,7 +109,13 @@ func Render(cmd *cobra.Command, a []string) {
 		log.Fatalf("error while rendering yaml output: %s", err)
 	}
 
-	fmt.Fprintf(os.Stderr, "%s", string(d))
+	dtFile := path.Join(conf.Aggr.Renderer.Site.Location, "data", conf.Aggr.Renderer.Site.FileName)
+	err = ioutil.WriteFile(dtFile, d, 0644)
+	if err != nil {
+		log.Fatalf("error while writing into %s: %s", dtFile, err)
+	}
+
+	//fmt.Fprintf(os.Stderr, "%s", string(d))
 
 	//t, err := template.ParseFiles("posts.md.tpl")
 	//if err != nil {

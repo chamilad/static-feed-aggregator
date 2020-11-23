@@ -12,8 +12,14 @@ aggregator:
     - title: NOA Alerts
       url: https://alerts.weather.gov/cap/al.php?x=0
       feed: https://alerts.weather.gov/cap/al.php?x=0
-      last_read: 1606098661
+      last_read: 1606103581
     - title: NASA RSS
       url: https://www.nasa.gov/content/nasa-rss-feeds
       feed: https://www.nasa.gov/rss/dyn/breaking_news.rss
       last_read: 1605981300
+  renderer:
+    collection:
+      days: 30
+    site:
+      location: site/poc/
+      file_name: latest.yaml
