@@ -21,3 +21,6 @@
 collector/collector
 aggr.db
 build/
+
+# poc site
+site/
