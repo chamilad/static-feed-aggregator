@@ -6,28 +6,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
-	Aggr struct {
-		Collector struct {
-			Feeds []struct {
-				Title    string `yaml:"title"`
-				URL      string `yaml:"url"`
-				Feed     string `yaml:"feed"`
-				LastRead int32  `yaml:"last_read"`
-			} `yaml:"feeds"`
-		} `yaml:"collector"`
-		Renderer struct {
-			Collection struct {
-				Days int `yaml:"days"`
-			} `yaml:"collection"`
-			Site struct {
-				Location string `yaml:"location"`
-				FileName string `yaml:"file_name"`
-			} `yaml:"site"`
-		} `yaml:"renderer"`
-	} `yaml:"aggregator"`
-}
-
 func LoadConfig(f string) (c *Config, err error) {
 	// todo: check if file exists
 

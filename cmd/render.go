@@ -23,37 +23,27 @@ var (
 	}
 )
 
-type Post struct {
-	Title     string `yaml:"title"`
-	URL       string `yaml:"url"`
-	Published string `yaml:"published"`
-	Fragment  string `yaml:"frag"`
-}
-
-type Posts struct {
-	Posts []*Post `yaml:"posts"`
-}
-
 func init() {
 	rootCmd.AddCommand(renderCmd)
 }
 
 func Render(cmd *cobra.Command, a []string) {
 	fmt.Fprintf(os.Stderr, "starting feed renderer...\n")
-	db, err := common.OpenDb(d)
+	conf, err := common.LoadConfig(c)
+	if err != nil {
+		log.Fatalf("error while loading configuration: %s", err)
+	}
+
+	db, err := common.OpenDb(conf.Database)
 	if err != nil {
 		log.Fatalf("error while opening database: %s\n", err)
 	}
 
 	defer db.Close()
 
-	conf, err := common.LoadConfig(c)
-	if err != nil {
-		log.Fatalf("error while loading configuration: %s", err)
-	}
-
 	now := time.Now()
-	itemsTable := fmt.Sprintf("items_%s", now.Format("200601"))
+	//itemsTable := fmt.Sprintf("items_%s", now.Format("200601"))
+	itemsTable := "items"
 	timeConstraint := now.Unix() - (60 * 60 * 24 * int64(conf.Aggr.Renderer.Collection.Days)) // x days before today
 
 	// SELECT * FROM {itemsTable} WHERE timestamp >= {today-10d.12AM} ORDER BY timestamp DSC
@@ -62,7 +52,7 @@ func Render(cmd *cobra.Command, a []string) {
 		log.Fatalf("error while retrieving posts: %s", err)
 	}
 
-	var rendPosts []*Post
+	var rendPosts []*common.Post
 
 	for posts.Next() {
 		var id int
@@ -76,7 +66,7 @@ func Render(cmd *cobra.Command, a []string) {
 			log.Fatalf("error while parsing post entry: %s", err)
 		}
 
-		p := &Post{
+		p := &common.Post{
 			Title:     title,
 			URL:       url,
 			Published: fmt.Sprintf("%d", timestamp),
@@ -100,7 +90,7 @@ func Render(cmd *cobra.Command, a []string) {
 		os.Exit(0)
 	}
 
-	yp := &Posts{
+	yp := &common.Posts{
 		Posts: rendPosts,
 	}
 

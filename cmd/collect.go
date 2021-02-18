@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/chamilad/sinhala-blog-aggregator/common"
 	_ "github.com/mattn/go-sqlite3"
@@ -30,17 +29,22 @@ func init() {
 func Collect(cmd *cobra.Command, a []string) {
 	fmt.Fprintf(os.Stderr, "starting feed collector...\n")
 
+	conf, err := common.LoadConfig(c)
+	if err != nil {
+		log.Fatalf("error while loading configuration file: %s", err)
+	}
+
 	// todo: add an init command later
 	// init db
-	now := time.Now()
-	db, err := common.OpenDb(d)
+	db, err := common.OpenDb(conf.Database)
 	if err != nil {
 		log.Fatalf("error while opening database: %s\n", err)
 	}
 
 	defer db.Close()
 
-	itemsTable := fmt.Sprintf("items_%s", now.Format("200601"))
+	itemsTable := "items"
+
 	stmt2, err := db.Prepare(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY, timestamp INTEGER, title TEXT, body TEXT, url TEXT)", itemsTable))
 	if err != nil {
 		log.Fatalf("error while prepping create table: %s\n", err)
@@ -51,11 +55,6 @@ func Collect(cmd *cobra.Command, a []string) {
 	_, err = stmt2.Exec()
 	if err != nil {
 		log.Fatalf("error while executing create table: %s\n", err)
-	}
-
-	conf, err := common.LoadConfig(c)
-	if err != nil {
-		log.Fatalf("error while loading configuration file: %s", err)
 	}
 
 	if len(conf.Aggr.Collector.Feeds) < 1 {
@@ -106,11 +105,11 @@ func Collect(cmd *cobra.Command, a []string) {
 
 		// if the newLastRead is updated, update the row in the db
 		if pCount > 0 {
-			log.Printf("%d new posts were processed from the feed", pCount)
+			log.Printf("%d new items were processed from the feed", pCount)
 			feedConf.LastRead = newLastRead
 			conf.Aggr.Collector.Feeds[i] = feedConf
 		} else {
-			log.Printf("no new feeds were found for: %s\n", feedConf.URL)
+			log.Printf("no new items were found for: %s\n", feedConf.URL)
 		}
 	}
 
@@ -141,7 +140,7 @@ func feedFromUrl(u string) (feed *gofeed.Feed, err error) {
 func addItem(d *sql.DB, table string, timestamp int32, title, body, url string) error {
 	stmt, err := d.Prepare(fmt.Sprintf("INSERT INTO %s(timestamp, title, body, url) VALUES(?,?,?,?)", table))
 	if err != nil {
-		log.Fatalf("error while prepping add feed: %s\n", err)
+		log.Fatalf("error while prepping add item: %s\n", err)
 	}
 	defer stmt.Close()
 
@@ -149,6 +148,8 @@ func addItem(d *sql.DB, table string, timestamp int32, title, body, url string) 
 	if err != nil {
 		log.Fatalf("error while adding feed item: %s\n", err)
 	}
+
+	log.Printf("post added with title: %s", title)
 
 	return nil
 }
